@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>VocabBuilder</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* General Styling */
+QMainWindow {
+    background-color: #2b2b2b;
+    color: #ffffff;
+}
+
+/* Buttons */
+QPushButton {
+    background-color: #808087;
+    color: white;
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 14px;
+}
+QPushButton:hover {
+    background-color: #6B6B70;
+}
+QPushButton:pressed {
+    background-color: #575759;
+}
+
+/* ComboBox */
+QComboBox {
+    background-color: #424242;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 14px;
+}
+QComboBox:hover {
+    border: 1px solid #808087;
+}
+
+/* Labels */
+QLabel {
+    color: #cfcfcf;
+    font-size: 14px;
+}
+
+/* Progress Bar */
+QProgressBar {
+    background-color: #424242;
+    border: 1px solid #555;
+    border-radius: 5px;
+    text-align: center;
+    color: #cfcfcf;
+}
+QProgressBar::chunk {
+    background-color: #4caf50;
+}
+
+/* Drag and Drop Frame */
+QFrame#dragDropFrame {
+    background-color: #333;
+    border: 2px dashed #808087;
+    border-radius: 10px;
+}
+QFrame#dragDropFrame:hover {
+    border: 2px dashed #6B6B70;
+}
+
+/* Drag and Drop Button */
+QPushButton#selectFileButton {
+    background-color: transparent;
+    color: #cfcfcf;
+    font-size: 16px;
+    border: none;
+}
+QPushButton#selectFileButton:hover {
+    color: #ffffff;
+}
+
+/* Status Bar */
+QStatusBar {
+    background-color: #2b2b2b;
+    color: #cfcfcf;
+    border-top: 1px solid #555;
+}
+</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <layout class="QVBoxLayout" name="leftLayout">
+      <item>
+       <widget class="QLabel" name="welcomeLabel">
+        <property name="text">
+         <string>Welcome to VocabBuilder!</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="descriptionLabel">
+        <property name="text">
+         <string>This application helps process text files by adding definitions and creating CSV files for educational purposes.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="languageLabel">
+        <property name="text">
+         <string>Select Language:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="languageComboBox">
+        <item>
+         <property name="text">
+          <string>English</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="downloadProcessedButton">
+        <property name="text">
+         <string>Download Processed File</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="downloadCSVButton">
+        <property name="text">
+         <string>Download CSV File</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="rightLayout">
+      <item>
+       <widget class="QFrame" name="dragDropFrame">
+        <property name="toolTip">
+         <string>Drag the file here or click to select</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Shape::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <layout class="QVBoxLayout" name="dragDropLayout">
+         <item>
+          <widget class="QPushButton" name="selectFileButton">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>250</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Select a file for processing</string>
+           </property>
+           <property name="text">
+            <string>Click or drag a file here</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="textVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
