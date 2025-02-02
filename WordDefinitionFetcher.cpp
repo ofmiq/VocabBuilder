@@ -1,4 +1,4 @@
-#include "worddefinitionfetcher.h"
+#include "WordDefinitionFetcher.h"
 #include <QUrl>
 #include <QNetworkRequest>
 #include <QJsonDocument>
@@ -9,7 +9,7 @@
 WordDefinitionFetcher::WordDefinitionFetcher(QObject *parent)
     : QObject(parent)
 {
-    // Connect the finished signal of the network manager to our reply handler slot
+    // Connect the finished signal of the network manager to the reply handler slot.
     connect(&networkManager, &QNetworkAccessManager::finished,
             this, &WordDefinitionFetcher::onReplyFinished);
 }
@@ -53,18 +53,18 @@ void WordDefinitionFetcher::onReplyFinished(QNetworkReply *reply)
     QJsonArray jsonArray = jsonDoc.array();
     QStringList formattedDefinitions; // Will hold formatted definition lines for each part of speech
 
-    // Iterate over each entry in the array
+    // Iterate over each entry in the array.
     for (int i = 0; i < jsonArray.size(); ++i) {
         QJsonObject entry = jsonArray[i].toObject();
         QJsonArray meanings = entry.value("meanings").toArray();
 
-        // For each meaning, corresponding to a specific part of speech
+        // For each meaning, corresponding to a specific part of speech.
         for (int j = 0; j < meanings.size(); ++j) {
             QJsonObject meaningObj = meanings[j].toObject();
             QString partOfSpeech = meaningObj.value("partOfSpeech").toString();
             QJsonArray definitions = meaningObj.value("definitions").toArray();
 
-            // If there is at least one definition, take the first one
+            // If there is at least one definition, take the first one.
             if (!definitions.isEmpty()) {
                 QJsonObject firstDefObj = definitions.first().toObject();
                 QString defText = firstDefObj.value("definition").toString();
@@ -76,13 +76,12 @@ void WordDefinitionFetcher::onReplyFinished(QNetworkReply *reply)
         }
     }
 
-    // Build the combined definitions string
+    // Build the combined definitions string with newline separation.
     QString combinedDefinitions;
     if (formattedDefinitions.isEmpty()) {
         combinedDefinitions = "No definition found";
     } else {
-        // Format the output: word followed by a newline, then definitions each on a new line, then a double newline.
-        combinedDefinitions = QString("\n%1\n").arg(formattedDefinitions.join("\n"));
+        combinedDefinitions = formattedDefinitions.join("\n");
     }
 
     emit definitionFetched(word, combinedDefinitions);

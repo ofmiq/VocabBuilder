@@ -30,7 +30,7 @@ signals:
     /**
      * @brief Emitted when a definition is successfully fetched.
      * @param word The word.
-     * @param definition The fetched definition (may contain multiple definitions separated by semicolons).
+     * @param definition The fetched definition (formatted with part-of-speech info).
      */
     void definitionFetched(const QString &word, const QString &definition);
 

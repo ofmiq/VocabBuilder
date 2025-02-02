@@ -1,31 +1,40 @@
 #include "FileProcessingService.h"
-#include "worddefinitionfetcher.h"
+#include "WordDefinitionFetcher.h"
 #include <QFile>
 #include <QTextStream>
 #include <QEventLoop>
 #include <QObject>
 #include <stdexcept>
+#include <QtConcurrent>
+#include <QFuture>
+#include <QFutureWatcher>
 
-/**
- * @brief Helper function to fetch a word's definition synchronously.
- * Internally uses a QEventLoop to wait for the asynchronous API response.
- * @param word The word for which to fetch the definition.
- * @return The fetched definition, or an error message if the fetch fails.
- */
-static QString fetchDefinitionSync(const QString &word) {
+FileProcessingService::FileProcessingService(std::unique_ptr<IFileParser> parser)
+    : parser(std::move(parser))
+{
+}
+
+QStringList FileProcessingService::getWords() const
+{
+    return parser->parseWords();
+}
+
+// Synchronously fetch definition for a word using WordDefinitionFetcher.
+QString FileProcessingService::fetchDefinitionSync(const QString &word)
+{
     QEventLoop loop;
     QString definition;
     WordDefinitionFetcher fetcher;
     QObject::connect(&fetcher, &WordDefinitionFetcher::definitionFetched,
                      [&loop, &definition, word](const QString &fetchedWord, const QString &def) {
-                         if (fetchedWord == word) {
+                         if (fetchedWord.compare(word, Qt::CaseInsensitive) == 0) {
                              definition = def;
                              loop.quit();
                          }
                      });
     QObject::connect(&fetcher, &WordDefinitionFetcher::fetchFailed,
                      [&loop, &definition, word](const QString &fetchedWord, const QString &error) {
-                         if (fetchedWord == word) {
+                         if (fetchedWord.compare(word, Qt::CaseInsensitive) == 0) {
                              definition = QString("Error: %1").arg(error);
                              loop.quit();
                          }
@@ -35,21 +44,24 @@ static QString fetchDefinitionSync(const QString &word) {
     return definition;
 }
 
-FileProcessingService::FileProcessingService(IFileParser *parser)
-    : parser(parser)
-{
-}
-
-// Processes the file and obtains definitions for each word.
+// Processes the file and obtains definitions for each word concurrently.
 QList<QPair<QString, QString>> FileProcessingService::processFileWithDefinitions()
 {
     QList<QPair<QString, QString>> results;
     QStringList words = parser->parseWords();
 
-    // For each word, fetch its definition synchronously.
-    for (const QString &word : words) {
-        QString def = fetchDefinitionSync(word);
-        results.append(qMakePair(word, def));
+    // Use QtConcurrent to fetch definitions concurrently.
+    QFuture<QString> future = QtConcurrent::mapped(words, [this](const QString &word) {
+        return fetchDefinitionSync(word);
+    });
+    QFutureWatcher<QString> watcher;
+    watcher.setFuture(future);
+    watcher.waitForFinished();
+    QStringList definitions = watcher.future().results();
+
+    // Combine words with their definitions.
+    for (int i = 0; i < words.size(); ++i) {
+        results.append(qMakePair(words[i], definitions[i]));
     }
     return results;
 }
@@ -63,11 +75,33 @@ QString FileProcessingService::saveProcessedWordsWithDefinitions(const QString &
     }
 
     QTextStream out(&outputFile);
-    // Write each word-definition pair on a separate block, separated by a double newline.
+    // Write each word-definition block, separated by a double newline.
     for (const auto &pair : wordDefinitions) {
-        out << pair.first << " : " << pair.second << "\n\n";
+        out << pair.first << " :\n" << pair.second << "\n\n";
     }
     outputFile.close();
     return outputPath;
 }
 
+QString FileProcessingService::saveProcessedWordsToCsv(const QString &outputPath,
+                                                       const QList<QPair<QString, QString>> &wordDefinitions)
+{
+    QFile outputFile(outputPath);
+    if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        throw std::runtime_error("FileProcessingService: Failed to save CSV file.");
+    }
+
+    QTextStream out(&outputFile);
+    // Write CSV header.
+    out << "\"Word\",\"Definition\"\n";
+    for (const auto &pair : wordDefinitions) {
+        QString word = pair.first;
+        QString definition = pair.second;
+        // Escape quotes by doubling them.
+        word.replace("\"", "\"\"");
+        definition.replace("\"", "\"\"");
+        out << "\"" << word << "\",\"" << definition << "\"\n";
+    }
+    outputFile.close();
+    return outputPath;
+}

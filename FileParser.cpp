@@ -14,7 +14,6 @@ bool FileParser::isValid() const
 QStringList FileParser::parseWords()
 {
     QStringList wordList;
-
     if (!valid) {
         qDebug() << "FileParser: File is not valid.";
         return wordList;
