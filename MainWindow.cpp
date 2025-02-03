@@ -106,7 +106,7 @@ void MainWindow::updateSelectedFile(const QString &filePath)
         watcher->deleteLater();
     });
 
-    // Launch concurrent mapping: for each word, fetch its definition synchronously.
+    // Launch concurrent mapping: for each word, fetch its definition synchronously (with retry mechanism).
     QFuture<QString> future = QtConcurrent::mapped(words, [this](const QString &word) {
         return fileProcessingService->fetchDefinitionSync(word);
     });

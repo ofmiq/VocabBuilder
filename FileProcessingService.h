@@ -51,6 +51,7 @@ public:
     /**
      * @brief Saves the processed word-definition pairs to a CSV file.
      * The CSV will have a header and each subsequent line will contain the word and its definition.
+     *
      * @param outputPath The destination CSV file path.
      * @param wordDefinitions The list of word-definition pairs.
      * @return The output path if saving is successful.
@@ -61,7 +62,7 @@ public:
 
     /**
      * @brief Fetches the definition of a word synchronously.
-     * This function is used to map words to definitions concurrently.
+     * Implements a retry mechanism with exponential backoff if a transfer error occurs.
      * @param word The word for which to fetch the definition.
      * @return The fetched definition.
      */

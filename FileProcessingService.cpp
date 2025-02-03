@@ -19,28 +19,47 @@ QStringList FileProcessingService::getWords() const
     return parser->parseWords();
 }
 
-// Synchronously fetch definition for a word using WordDefinitionFetcher.
+// Synchronously fetch the definition for a word using WordDefinitionFetcher,
+// with a retry mechanism using exponential backoff for "Error transferring" errors.
 QString FileProcessingService::fetchDefinitionSync(const QString &word)
 {
-    QEventLoop loop;
+    const int maxRetries = 5;
+    int attempt = 0;
     QString definition;
-    WordDefinitionFetcher fetcher;
-    QObject::connect(&fetcher, &WordDefinitionFetcher::definitionFetched,
-                     [&loop, &definition, word](const QString &fetchedWord, const QString &def) {
-                         if (fetchedWord.compare(word, Qt::CaseInsensitive) == 0) {
-                             definition = def;
-                             loop.quit();
-                         }
-                     });
-    QObject::connect(&fetcher, &WordDefinitionFetcher::fetchFailed,
-                     [&loop, &definition, word](const QString &fetchedWord, const QString &error) {
-                         if (fetchedWord.compare(word, Qt::CaseInsensitive) == 0) {
-                             definition = QString("Error: %1").arg(error);
-                             loop.quit();
-                         }
-                     });
-    fetcher.fetchDefinition(word);
-    loop.exec();
+
+    while (attempt < maxRetries) {
+        QEventLoop loop;
+        WordDefinitionFetcher fetcher;
+        QObject::connect(&fetcher, &WordDefinitionFetcher::definitionFetched,
+                         [&loop, &definition, word](const QString &fetchedWord, const QString &defText) {
+                             if (fetchedWord.compare(word, Qt::CaseInsensitive) == 0) {
+                                 definition = defText;
+                                 loop.quit();
+                             }
+                         });
+        QObject::connect(&fetcher, &WordDefinitionFetcher::fetchFailed,
+                         [&loop, &definition, word](const QString &fetchedWord, const QString &error) {
+                             if (fetchedWord.compare(word, Qt::CaseInsensitive) == 0) {
+                                 definition = QString("Error: %1").arg(error);
+                                 loop.quit();
+                             }
+                         });
+        fetcher.fetchDefinition(word);
+        loop.exec();
+
+        // If no error occurred, break out of the loop.
+        if (!definition.startsWith("Error:"))
+            break;
+
+        // If error indicates a transfer problem, apply exponential backoff and retry.
+        if (definition.contains("Error transferring")) {
+            attempt++;
+            int delay = 1 << (attempt - 1);
+            QThread::sleep(delay);
+            continue;
+        }
+        break;
+    }
     return definition;
 }
 
