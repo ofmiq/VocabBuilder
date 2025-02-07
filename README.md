@@ -16,7 +16,7 @@ VocabBuilder is a vocabulary learning application that helps users study new wor
 
 ### Using Prebuilt Release
 
-1. Download the latest release from the Releases page.
+1. Download the latest release from the [Releases](https://github.com/ofmiq/VocabBuilder/releases) page.
 
 2. Extract the archive.
 
