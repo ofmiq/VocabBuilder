@@ -47,9 +47,11 @@ QString FileProcessingService::fetchDefinitionSync(const QString &word)
         fetcher.fetchDefinition(word);
         loop.exec();
 
-        // If no error occurred, break out of the loop.
-        if (!definition.startsWith("Error:"))
+
+        // If the definition is not found, break out of the loop.
+        if (definition.startsWith("Error: No definition found")) {
             break;
+        }
 
         // If error indicates a transfer problem, apply exponential backoff and retry.
         if (definition.contains("Error transferring")) {

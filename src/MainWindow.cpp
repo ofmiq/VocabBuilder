@@ -120,6 +120,11 @@ void MainWindow::on_downloadProcessedButton_clicked()
         return;
     }
 
+    if (!fileProcessingService) {
+        QMessageBox::critical(this, tr("Error"), tr("File processing service is not initialized."));
+        return;
+    }
+
     QString saveFilePath = QFileDialog::getSaveFileName(
         this, tr("Save Processed File"), "", tr("Text Files (*.txt);;All Files (*)"));
 
@@ -145,6 +150,11 @@ void MainWindow::on_downloadCSVButton_clicked()
 {
     if (currentWordDefinitions.isEmpty()) {
         QMessageBox::warning(this, tr("No Data Available"), tr("Please process a file first."));
+        return;
+    }
+
+    if (!fileProcessingService) {
+        QMessageBox::critical(this, tr("Error"), tr("File processing service is not initialized."));
         return;
     }
 

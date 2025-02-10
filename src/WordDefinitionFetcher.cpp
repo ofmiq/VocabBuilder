@@ -30,7 +30,25 @@ void WordDefinitionFetcher::onReplyFinished(QNetworkReply *reply)
     QString word = url.path().section('/', -1);
 
     if (reply->error() != QNetworkReply::NoError) {
-        emit fetchFailed(word, reply->errorString());
+        QString errorString = reply->errorString();
+        QNetworkReply::NetworkError errorType = reply->error();
+
+        if (reply->error() == QNetworkReply::NetworkError::ContentNotFoundError) { // Check for 404
+            emit fetchFailed(word, "No definition found");
+        } else if (errorType == QNetworkReply::NetworkError::TimeoutError) {
+            emit fetchFailed(word, "Network timeout error");
+        } else if (errorType == QNetworkReply::NetworkError::ConnectionRefusedError ||
+                   errorType == QNetworkReply::NetworkError::HostNotFoundError) {
+            emit fetchFailed(word, "Network connection error");
+        } else {
+            // Check for specific HTTP status codes.  404 means "Not Found"
+            if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 404) {
+                emit fetchFailed(word, "No definition found");
+            } else {
+                emit fetchFailed(word, QString("Network error: %1 (HTTP Status: %2)").arg(errorString).arg(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()));
+            }
+        }
+
         reply->deleteLater();
         return;
     }
@@ -39,13 +57,15 @@ void WordDefinitionFetcher::onReplyFinished(QNetworkReply *reply)
     QJsonParseError jsonError;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData, &jsonError);
     if (jsonError.error != QJsonParseError::NoError) {
-        emit fetchFailed(word, jsonError.errorString());
+        qDebug() << "JSON Parse error for word:" << word << ", error:" << jsonError.errorString();
+        emit fetchFailed(word, QString("JSON Parse error: %1").arg(jsonError.errorString())); // JSON parsing error
         reply->deleteLater();
         return;
     }
 
     if (!jsonDoc.isArray()) {
-        emit fetchFailed(word, "Unexpected JSON format");
+        qDebug() << "Unexpected JSON format for word:" << word;
+        emit fetchFailed(word, "Unexpected JSON format from API"); // Unexpected JSON format
         reply->deleteLater();
         return;
     }

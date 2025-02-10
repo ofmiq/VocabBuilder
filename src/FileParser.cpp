@@ -24,10 +24,11 @@ QStringList FileParser::parseWords()
         qDebug() << "FileParser: Failed to open file.";
         return wordList;
     }
+    wordList.reserve(file.size() / 8);
 
     QTextStream in(&file);
     // Regular expression to match words (alphanumeric characters)
-    QRegularExpression wordRegex("\\w+");
+    QRegularExpression wordRegex("[\\w'-]+");
 
     // Read file line by line and extract words
     while (!in.atEnd()) {
