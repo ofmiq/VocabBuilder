@@ -1,8 +1,8 @@
-# 📖 VocabBuilder
+# VocabBuilder
 
 VocabBuilder is a vocabulary learning application that helps users study new words by automatically fetching their definitions and exporting them into a CSV file. The application is designed to streamline the process of learning new words from a provided text file.
 
-## ✨ Features
+## Features
 
 - Automatically retrieves word definitions via an API.
 
@@ -12,7 +12,7 @@ VocabBuilder is a vocabulary learning application that helps users study new wor
 
 - Simple and user-friendly interface built with Qt.
 
-## 🚀 Installation
+## Installation
 
 ### Using Prebuilt Release
 
@@ -22,11 +22,11 @@ VocabBuilder is a vocabulary learning application that helps users study new wor
 
   3. Run VocabBuilder.exe.
 
-## 🔧 Build Steps
+## Build Steps
 
 Follow these steps to build and run the project successfully.
 
-### ✅ 1. Install Dependencies
+### 1. Install Dependencies
 
 Make sure you have the following installed:
 
@@ -38,7 +38,7 @@ Make sure you have the following installed:
 
 - `windeployqt` (included with Qt)
 
-### ✅ 2. Configure and Build the Project
+### 2. Configure and Build the Project
 
 1. Clone the repository:
 ``` sh
@@ -62,7 +62,7 @@ cmake .. -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH="YOUR_PATH_TO_QT/lib/cmake" -D
 mingw32-make
 ```
 
-### ✅ 3. Deploy the Executable
+### 3. Deploy the Executable
 
 Run windeployqt to copy required Qt libraries:
 ``` sh
@@ -71,7 +71,7 @@ Run windeployqt to copy required Qt libraries:
 
 Now you can run VocabBuilder.exe from the deployment folder.
 
-## 📝 Usage
+## Usage
 
 1. Prepare a text file containing words you want to learn.
 
@@ -81,11 +81,11 @@ Now you can run VocabBuilder.exe from the deployment folder.
 
 4. Download the processed file in CSV or TXT format.
 
-## 🛠 Contributing
+## Contributing
 
 Feel free to submit issues, feature requests, or pull requests to improve the application.
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/ofmiq/VocabBuilder/blob/main/LICENSE) file for details
 
